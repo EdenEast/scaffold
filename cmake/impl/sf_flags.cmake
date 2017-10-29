@@ -10,6 +10,12 @@ macro(sf_include_once module flags)
     endif()
 endmacro()
 
+macro(sf_resolve_build_type)
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
+        sf_message("CMAKE_BUILD_TYPE is empty. Defaulting to release build.")
+        set(CMAKE_BUILD_TYPE "Release")
+    endif()
+endmacro()
 
 macro(sf_init_compiler_flag_check)
     sf_include_once(CheckCxxCompilerFlag SF_COMPILER_FLAGS_CHECK_INCLUDED)
@@ -34,13 +40,10 @@ macro(sf_add_compiler_flag flag)
     if (${PROJECT_TEST_NAME})
         sf_add_compiler_flag_nocheck(${flag})
     endif()
-
 endmacro()
 
 
 macro(sf_add_common_compiler_flags_any_gcc_clang)
-    sf_message("adding common flags")
-
     sf_add_compiler_flag_nocheck("-W")
     sf_add_compiler_flag_nocheck("-Wall")
     sf_add_compiler_flag_nocheck("-Wextra")
@@ -59,4 +62,122 @@ macro(sf_add_common_compiler_flags_any_gcc_clang)
     sf_add_compiler_flag_nocheck("-Wno-unused-local-typedefs")
     sf_add_compiler_flag_nocheck("-Wno-missing-field-initializers")
     sf_add_compiler_flag_nocheck("-Wno-unreachable-code")
+endmacro()
+
+macro(sf_add_common_compiler_flags_any_msvc)
+    
+endmacro()
+
+macro(sf_add_common_compiler_flags_any)
+    sf_message("added common flags")
+    
+    if (SF_COMPILER_IS_MSVC)
+        sf_add_common_compiler_flags_any_msvc()
+    else()
+        sf_add_common_compiler_flags_any_gcc_clang()
+    endif()
+endmacro()
+
+macro(sf_add_common_compiler_flags_gcc)
+    sf_add_compiler_flag("-Wmisleading-indentation")
+    sf_add_compiler_flag("-Wtautological-compare")
+    sf_add_compiler_flag_nocheck("-Wlogical-op")
+    sf_add_compiler_flag("-Wshift-overflow=2")
+    sf_add_compiler_flag("-Wduplicated-cond")
+
+    sf_add_compiler_flag_nocheck("-Wsuggest-final-types")
+    sf_add_compiler_flag_nocheck("-Wsuggest-final-methods")
+    sf_add_compiler_flag_nocheck("-Wsuggest-override")
+endmacro()
+
+macro(sf_add_common_compiler_flags_clang)
+    sf_add_compiler_flag_nocheck("-Weverything") 
+
+    sf_add_compiler_flag_nocheck("-Wno-c++98-compat")
+    sf_add_compiler_flag_nocheck("-Wno-c++98-compat-pedantic")
+    sf_add_compiler_flag_nocheck("-Wno-missing-prototypes")
+    sf_add_compiler_flag_nocheck("-Wno-newline-eof")
+    sf_add_compiler_flag_nocheck("-Wno-reserved-id-macro")
+    sf_add_compiler_flag_nocheck("-Wno-exit-time-destructors")
+    sf_add_compiler_flag_nocheck("-Wno-global-constructors")
+    sf_add_compiler_flag_nocheck("-Wno-missing-variable-declarations")
+    sf_add_compiler_flag_nocheck("-Wno-header-hygiene")
+    sf_add_compiler_flag_nocheck("-Wno-conversion")
+    sf_add_compiler_flag_nocheck("-Wno-float-equal")
+    sf_add_compiler_flag_nocheck("-Wno-old-style-cast")
+    sf_add_compiler_flag_nocheck("-Wno-unused-macros")
+    sf_add_compiler_flag_nocheck("-Wno-class-varargs")
+    sf_add_compiler_flag_nocheck("-Wno-padded")
+    sf_add_compiler_flag_nocheck("-Wno-weak-vtables")
+    sf_add_compiler_flag_nocheck("-Wno-date-time")
+    sf_add_compiler_flag_nocheck("-Wno-unneeded-member-function")
+    sf_add_compiler_flag_nocheck("-Wno-covered-switch-default")
+    sf_add_compiler_flag_nocheck("-Wno-range-loop-analysis")
+    sf_add_compiler_flag_nocheck("-Wno-unused-member-function")
+    sf_add_compiler_flag_nocheck("-Wno-switch-enum")
+    sf_add_compiler_flag_nocheck("-Wno-double-promotion")
+    sf_add_compiler_flag_nocheck("-Wno-injected-class-name")
+    sf_add_compiler_flag_nocheck("-Wno-gnu-statement-expression")
+    sf_add_compiler_flag_nocheck("-Wno-unused-lambda-capture")
+endmacro()
+
+macro(sf_add_common_compiler_flags_msvc)
+    
+endmacro()
+
+
+macro(sf_add_common_compiler_flags_suggest_attribute)
+    if (NOT "${SF_COMPILER_IS_MSVC}")
+        sf_message("added common suggest-attribute flags")
+
+        sf_add_compiler_flag("-Wsuggest-attribute=pure")
+        sf_add_compiler_flag("-Wsuggest-attribute=const")
+        sf_add_compiler_flag("-Wsuggest-attribute=noreturn")
+        sf_add_compiler_flag("-Wsuggest-attribute=format")
+    endif()
+endmacro()
+
+macro(sf_add_common_compiler_flags_release)
+    sf_message("added common release flags")
+
+    if (NOT "${SF_COMPILER_IS_MSVC}")
+        sf_add_compiler_flag_nocheck("-Ofast")
+        sf_add_compiler_flag_nocheck("-ffast-math")
+    else()
+    endif()
+
+    add_definitions(-DNDEBUG)
+endmacro()
+
+macro(sf_add_common_compiler_flags_debug)
+    sf_message("added common debug flags")
+    
+    if (NOT "${SF_COMPILER_IS_MSVC}")
+        sf_add_compiler_flag_nocheck("-Og")
+        sf_add_compiler_flag_nocheck("-g")
+    else()
+    endif()
+endmacro()
+
+macro(sf_add_common_compiler_flags)
+    sf_add_common_compiler_flags_any()
+
+    # adding common compiler option depending on compiler
+    if (SF_COMPILER_IS_MSVC)
+        sf_add_common_compiler_flags_msvc()
+    elseif(SF_COMPILER_IS_CLANG)
+        sf_add_common_compiler_flags_clang()
+    elseif(SF_COMPILER_IS_GCC)
+        sf_add_common_compiler_flags_gcc()
+    endif()
+
+    # adding common compiler options based on CMAKE_BUILD_TYPE
+    string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE)
+    if ("${BUILD_TYPE}" STREQUAL "release")
+        sf_add_common_compiler_flags_release()
+    elseif ("${BUILD_TYPE}" STREQUAL "debug")
+        sf_add_common_compiler_flags_debug()
+    endif()
+
+    sf_message("final flags: ${SF_SET_FLAGS}")
 endmacro()

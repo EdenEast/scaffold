@@ -10,7 +10,6 @@ macro(sf_set_cxxstd x)
 
     # depending on the version of cmake CXX_STANDARD might not have 17
     if ("${x}" EQUAL "17")
-        sf_message("${x} equals 17")
     	# before cmake version 3.8.2 c++ 17 does not exist
     	if (${CMAKE_VERSION} VERSION_GREATER 3.8.2)
     		set(CMAKE_CXX_STANDARD ${x}})

@@ -4,9 +4,15 @@ include("${CMAKE_CURRENT_LIST_DIR}/sf_include.cmake")
 sf_include_sf_dependency_once(sf_log)
 
 macro(sf_add_default_subdirectories)
-	add_subdirectory(${PROJECT_NAME})
-	add_subdirectory(samples)
-	add_subdirectory(tests)
+    if (EXISTS ${PROJECT_NAME})
+	    add_subdirectory(${PROJECT_NAME})
+    endif()
+    if (EXISTS samples)
+        add_subdirectory(samples)
+    endif()
+    if (EXISTS tests)
+        add_subdirectory(tests)
+    endif()
 endmacro()
 
 # add filter group for msvc. creates filters using file relative path of
