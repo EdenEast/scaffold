@@ -1,6 +1,8 @@
 # Scaffold
 
-> **Shaded CMake aliases, macros and functions**
+> **Shaded CMake macros and functions**
+
+Scaffold is a cmake library that helps you setup and maintain your cmake scripts. Scaffold is ment to be used as a submodule in your project.
 
 ## Quick start
 1. Add this repository as a submodule of your project, in `./extlibs/scaffold` or `./3rdparty/scaffold`:
