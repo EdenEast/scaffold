@@ -1,0 +1,12 @@
+# include modeule inclusion utility
+include(impl/sf_include)
+
+sf_include_sf_impl_once(sf_cxxstd)
+sf_include_sf_impl_once(sf_detection)
+sf_include_sf_impl_once(sf_flags)
+sf_include_sf_impl_once(sf_initialize)
+sf_include_sf_impl_once(sf_install)
+sf_include_sf_impl_once(sf_log)
+sf_include_sf_impl_once(sf_testing)
+sf_include_sf_impl_once(sf_third_party)
+sf_include_sf_impl_once(sf_utils)
