@@ -5,23 +5,25 @@ sf_include_sf_dependency_once(sf_log)
 # creates an install target that installs the project as a header-only
 # library. library files are in the `file_list`. the `src_dir` is
 # copied to the dest_dir
-macro(sf_header_only_install file_list src_dir dest_dir)
+macro(sf_header_only_install target_name file_list src_dir dest_dir)
     sf_message("added header-only install target")
 
-    add_custom_target(HEADER_ONLY_TARGET SOURCES ${file_list})
-    set_target_properties(HEADER_ONLY_TARGET PROPERTIES LINKER_LANGUAGE CXX)
-    install(DIRECTORY ${src_dir} DESTINIATION ${dest_dir})
+	add_library(${target_name} INTERFACE)
+	target_include_directories(${target_name} INTERFACE ${src_dir})
+	target_sources(${target_name} INTERFACE ${file_list})
+    # install(DIRECTORY "${src_dir}" DESTINATION "${dest_dir}")
 endmacro()
 
 
 # creates an install target that installs the project as a header-only library.
 # auto `src_dir`
-macro(sf_header_only_install_glob src_dir dest_dir)
+macro(sf_header_only_install_glob target_name src_dir dest_dir)
     sf_message("globbing ${src_dir} for header-only install")
 
     file(GLOB_RECURSE INSTALL_FILES_LIST "${src_dir}/*")
 
-    sf_header_only_install("${INSTALL_FILES_LIST}" "${src_dir}" "${dest_dir}")
+	sf_add_filter_group("${INSTALL_FILES_LIST}" "${src_dir}")
+    sf_header_only_install("${target_name}" "${INSTALL_FILES_LIST}" "${src_dir}" "${dest_dir}")
 endmacro()
 
 macro(sf_create_include_directory file_list source_dir include_dir)

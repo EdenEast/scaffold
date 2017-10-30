@@ -10,13 +10,6 @@ macro(sf_include_once module flags)
     endif()
 endmacro()
 
-macro(sf_resolve_build_type)
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
-        sf_message("CMAKE_BUILD_TYPE is empty. Defaulting to release build.")
-        set(CMAKE_BUILD_TYPE "Release")
-    endif()
-endmacro()
-
 macro(sf_init_compiler_flag_check)
     sf_include_once(CheckCxxCompilerFlag SF_COMPILER_FLAGS_CHECK_INCLUDED)
 endmacro()
