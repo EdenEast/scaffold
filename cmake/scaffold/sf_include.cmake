@@ -9,7 +9,7 @@ endmacro()
 # include a inner scafold impl module only once
 macro(sf_include_sf_impl_once x)
     if (NOT ${x}_INCLUDED)
-        include("${CMAKE_CURRENT_LIST_DIR}/impl/${x}.cmake")
+        include("${CMAKE_CURRENT_LIST_DIR}/scaffold/${x}.cmake")
         set("${x}_INCLUDED" true)
     endif()
 endmacro()

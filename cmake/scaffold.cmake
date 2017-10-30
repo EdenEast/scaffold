@@ -1,5 +1,5 @@
 # include modeule inclusion utility
-include(impl/sf_include)
+include(scaffold/sf_include)
 
 sf_include_sf_impl_once(sf_cxxstd)
 sf_include_sf_impl_once(sf_detection)
