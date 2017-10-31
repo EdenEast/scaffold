@@ -3,6 +3,7 @@ include(scaffold/sf_include)
 
 sf_include_sf_impl_once(sf_cxxstd)
 sf_include_sf_impl_once(sf_detection)
+sf_include_sf_impl_once(sf_extlib)
 sf_include_sf_impl_once(sf_flags)
 sf_include_sf_impl_once(sf_initialize)
 sf_include_sf_impl_once(sf_install)

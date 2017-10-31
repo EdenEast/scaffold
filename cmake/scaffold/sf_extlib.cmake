@@ -8,15 +8,16 @@ sf_include_sf_dependency_once(sf_log)
 macro(sf_find_extlib_in extlib dir)
     sf_message("finding ${extlib} in ${dir}")
 
+    # including the directory passed in
     list(APPEND CMAKE_MODULE_PATH
-        "${CMAKE_SOURCE_DIR}/${dir}/cmake/modules"
-        "${CMAKE_SOURCE_DIR}/${dir}/cmake")
+        "${CMAKE_SOURCE_DIR}/${dir}/${extlib}/cmake/modules"
+        "${CMAKE_SOURCE_DIR}/${dir}/${extlib}/cmake")
 
-    list(APPEND ext_lib_list "exlibs" "3rdparty" "third_party")
-    foreach(list_item ${ext_lib_list})
-        list(APPEND CMAKE_MODULE_PATH
-            "${CMAKE_SOURCE_DIR}/${list_item}/cmake"
-            "${CMAKE_SOURCE_DIR}/${list_item}/cmake/modules")
+    list(APPEND extlib_list "exlibs" "3rdparty" "third_party")
+    foreach(ex_lib ${extlib_list})
+        list(APPEND CNAME_MODULE_PATH
+            "${CMAKE_SOURCE_DIR}/${ex_lib}/${extlib}/cmake/modules"
+            "${CMAKE_SOURCE_DIR}/${ex_lib}/${extlib}/cmake")
     endforeach()
 
     find_package("${extlib}" REQUIRED)
@@ -30,5 +31,5 @@ endmacro()
 
 macro(sf_find_extlib extlib)
     sf_message("finding ${extlib} in ./..")
-    sf_find_extlib_in_and_default_include(${extlib} ..)
+    sf_find_extlib_in_and_default_include(${extlib} "..")
 endmacro()

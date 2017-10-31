@@ -8,12 +8,17 @@ sf_include_sf_dependency_once(sf_log)
 macro(sf_header_only_install target_name file_list src_dir dest_dir)
     sf_message("added header-only install target")
 
+    # create an interace library and add include directories to it
     add_library(${target_name} INTERFACE)
     target_include_directories(${target_name} INTERFACE ${src_dir})
-    target_sources(${target_name} INTERFACE ${file_list})
-    # install(DIRECTORY "${src_dir}" DESTINATION "${dest_dir}")
-endmacro()
 
+    # in order to see the interface library in IDEs like visual studio
+    # creating a dummy custom target
+    add_custom_target("${target_name}-lib" SOURCES "${file_list}")
+    sf_add_filter_group("${file_list}" "${src_dir}")
+    set_source_files_properties(${file_list} PROPERTIES HEADER_ONLY_FILES 1)
+    install(DIRECTORY ${src_dir} DESTINATION ${dest_dir})
+endmacro()
 
 # creates an install target that installs the project as a header-only library.
 # auto `src_dir`
@@ -22,7 +27,6 @@ macro(sf_header_only_install_glob target_name src_dir dest_dir)
 
     file(GLOB_RECURSE INSTALL_FILES_LIST "${src_dir}/*")
 
-    sf_add_filter_group("${INSTALL_FILES_LIST}" "${src_dir}")
     sf_header_only_install("${target_name}" "${INSTALL_FILES_LIST}" "${src_dir}" "${dest_dir}")
 endmacro()
 
