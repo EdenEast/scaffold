@@ -19,6 +19,12 @@ macro(sf_add_compiler_flag_nocheck flag)
     list(APPEND SF_SET_FLAGS "${flag}")
 endmacro()
 
+macro(sf_check_compiler_flag flag result)
+    sf_init_compiler_flag_check()
+    check_cxx_compiler_flag(${flag} ${result})
+endmacro()
+
+
 macro(sf_add_compiler_flag flag)
     # creating a test name that can store if the option has been added
     string(SUBSTRING ${flag} 1 -1 flag_0)
