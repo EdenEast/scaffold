@@ -24,23 +24,18 @@ macro(sf_check_compiler_flag flag result)
     check_cxx_compiler_flag(${flag} ${result})
 endmacro()
 
-
 macro(sf_add_compiler_flag flag)
     # creating a test name that can store if the option has been added
-    string(SUBSTRING ${flag} 1 -1 flag_0)
-    string(TOUPPER ${flag_0} flag_1)
-    string(REPLACE "-" "_" flag_2 ${flag_1})
-    string(REPLACE "+" "X" flag_3 ${flag_2})
-    set(PROJECT_TEST_NAME "${PROJECT_NAME_UPPER}_HAS_${flag_3}")
+    string(REGEX REPLACE "[^a-zA-Z0-9_]" "_" var ${flag})
 
     sf_init_compiler_flag_check()
-    check_cxx_compiler_flag(${flag} ${PROJECT_TEST_NAME})
+    set(CMAKE_REQUIRED_QUIET TRUE)
+    check_cxx_compiler_flag("${flag}" HAVE_CXX_${var} QUIET)
 
-    if (${PROJECT_TEST_NAME})
+    if(HAVE_CXX_${var})
         sf_add_compiler_flag_nocheck(${flag})
     endif()
 endmacro()
-
 
 macro(sf_add_common_compiler_flags_any_gcc_clang)
     sf_add_compiler_flag_nocheck("-W")

@@ -5,17 +5,13 @@ sf_include_sf_dependency_once(sf_log)
 sf_include_sf_dependency_once(sf_detection)
 sf_include_sf_dependency_once(sf_flags)
 
-macro(sf_check_if_compiler_supports_version version)
-    if("${version}" STREQUAL "17")
-        sf_check_compiler_flag("-std=c++1z" is_supported)
-    elseif("${version}" STREQUAL "14")
-        sf_check_compiler_flag("-std=c++14" is_supported)
-    elseif("${version}" STREQUAL "11")
-        sf_check_compiler_flag("-std=c++11" is_supported)
-    endif()
-
-    if(NOT is_supported)
-        sf_fatal_error_message("Compiler does not support version of c++ ${version}")
+macro(sf_set_compiler_flags_gcc_clang cxx_version)
+    list(APPEND versions "17" "14" "11")
+    list(APPEND flags "1z" "14" "11")
+    list(FIND versions "${cxx_version}" index)
+    if(${index} GREATER -1)
+        list(GET flags index value)
+        sf_add_compiler_flag("-std=c++${value}")
     endif()
 endmacro()
 
@@ -27,27 +23,23 @@ macro(sf_set_compiler_flag_msvc cxx_version)
     endif()
 endmacro()
 
-macro(sf_set_compiler_flags_gcc_clang cxx_version)
-    list(APPEND versions "17" "14" "11")
-    list(FIND versions "${cxx_version}" index)
-    if (${index} GREATER -1)
-        sf_add_compiler_flag("-std=c++${cxx_version}")
-    endif()
-endmacro()
-
 macro(sf_set_cxxstd x)
     sf_message("settings required c++ standard to ${x}")
 
     if (SF_COMPILER_IS_MSVC)
         sf_set_compiler_flag_msvc("${x}")
     else()
-        sf_check_if_compiler_supports_version("${x}")
-        if (${CMAKE_VERSION} VERSION_GREATER 3.8.2)
-            set(CMAKE_CXX_EXTENTIONS off)
-            set(CMAKE_CXX_STANDARD_REQUIRED on)
-            set(CMAKE_CXX_STANDARD "${X}")
-        else()
-            sf_set_compiler_flags_gcc_clang("${x}")
-        endif()
+        sf_set_compiler_flags_gcc_clang("${x}")
     endif()
 endmacro()
+
+macro(sf_set_target_cxx target version)
+    sf_message("setting ${target} to c++ version ${version}")
+
+    set_target_properties(${target} PROPERTIES
+        CXX_STANDARD ${version}
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS OFF
+    )
+endmacro()
+
