@@ -20,7 +20,7 @@ endmacro()
 
 macro(sf_init_target_root_dir target)
     string(TOUPPER ${target} TARGET_UPPER)
-    set("${${TARGET_UPPER}_UPPER}_ROOT_DIR" "${CMAKE_CURRENT_SOURCE_DIR}")    
+    set("${${TARGET_UPPER}_UPPER}_ROOT_DIR" "${CMAKE_CURRENT_SOURCE_DIR}")
 endmacro()
 
 macro(sf_init_project_source_dir)
@@ -63,6 +63,7 @@ macro(sf_init_project project_name)
     sf_init_project_root_dir()
     sf_init_project_source_dir()
     sf_init_project_common_module_paths()
+    sf_init_output_dirs()
 
     sf_message("initialized project ${project_name}")
 endmacro()
@@ -75,15 +76,14 @@ macro(sf_init_target target_name)
 endmacro()
 
 macro(sf_init_output_dirs)
-    set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/outputs/bin/)
-    set(LIRBARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/outputs/lib/)
+    set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin/)
+    set(LIRBARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib/)
 endmacro()
 
 macro(sf_init_target_output target)
-    set_target_properties(${target}
-        PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/outputs/${target}/lib"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/outputs/${target}/lib"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/outputs/${target}/bin"
-        EXECUTABLE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/outputs/${target}/bin")
+    set_target_properties(${target} PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        EXECUTABLE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 endmacro()
