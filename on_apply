@@ -29,10 +29,10 @@ fi
 generate samples/CMakeLists.txt templates/samples_CMakeLists.txt.template
 
 # re-generate the third_party cmakelists file
-generate third_party/CMakeLists.txt templates/third_party_root_CMakeLists.txt.template
+generate ${conf_scaffold_third_party}/CMakeLists.txt templates/third_party_root_CMakeLists.txt.template
 
 # generate trampoline files, only if they don't already exist
-tp_dirlist="$(compgen -A directory third_party/)"
+tp_dirlist="$(compgen -A directory "${conf_scaffold_third_party}/")"
 for tp_dir in $tp_dirlist
 do
   [ ! -f "$tp_dir.cmake" ] && generate "$tp_dir.cmake" templates/third_party_tramp_CMakeLists.txt.template "${tp_dir#*/}"
