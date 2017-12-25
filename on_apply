@@ -1,0 +1,40 @@
+
+
+echo Setting up the project for scaffold...
+
+# set-up directories
+mkdir ${conf_project_name}
+mkdir samples
+mkdir ${conf_scaffold_third_party}
+mkdir cmake
+# mkdir tests
+
+git-add-submodule "$conf_scaffold_repository_url" "${conf_scaffold_third_party}/scaffold" "$conf_scaffold_repository_branch"
+
+# re-generate the root cmakelists file
+generate CMakeLists.txt templates/root_CMakeLists.txt.template
+
+# generate the user-defined cmake file only if it doesn't already exists
+[ ! -f cmake/${conf_project_name}.cmake ] && generate cmake/${conf_project_name}.cmake templates/user_def_CMakeLists.txt.template
+
+# generate the project cmakelists file only if it doesn't already exists
+if [ ! -f ${conf_project_name}/CMakeLists.txt ]
+then
+  generate ${conf_project_name}/CMakeLists.txt templates/project_CMakeLists.txt.template
+  generate ${conf_project_name}/${conf_project_name}.cpp templates/project.cpp
+  generate ${conf_project_name}/${conf_project_name}.$conf_scaffold_header_ext templates/project.hpp
+fi
+
+# re-generate the samples cmakelists file
+generate samples/CMakeLists.txt templates/samples_CMakeLists.txt.template
+
+# re-generate the third_party cmakelists file
+generate third_party/CMakeLists.txt templates/third_party_root_CMakeLists.txt.template
+
+# generate trampoline files, only if they don't already exist
+tp_dirlist="$(compgen -A directory third_party/)"
+for tp_dir in $tp_dirlist
+do
+  [ ! -f "$tp_dir.cmake" ] && generate "$tp_dir.cmake" templates/third_party_tramp_CMakeLists.txt.template "${tp_dir#*/}"
+done
+

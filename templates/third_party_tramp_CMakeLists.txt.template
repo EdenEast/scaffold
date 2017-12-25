@@ -1,0 +1,10 @@
+# prefix: %%
+##
+## trampoline file for %%{1}
+##
+
+# add your conf for %%{1} here:
+
+
+# Add %%{1} to the build list
+add_subdirectory(%%{1})

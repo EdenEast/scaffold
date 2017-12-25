@@ -1,0 +1,11 @@
+##
+## Default configuration for the scaffold generator
+##
+
+conf_scaffold_repository_url="https://github.com/CruizeMissile/scaffold.git"
+conf_scaffold_repository_branch="master"
+
+# name of the third_party folder
+conf_scaffold_third_party=third_party
+conf_scaffold_header_ext=hpp
+
