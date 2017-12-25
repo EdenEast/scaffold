@@ -4,9 +4,9 @@
 ##
 
 %%(
-  dirlist="%%(compgen -A directory third_party/)"
+  dirlist="%%(compgen -A directory %%{conf_scaffold_third_party}/)"
   for dir in %%dirlist
   do
-    echo 'include('"%%dir"'.cmake)'
+    echo 'include('"../%%dir"'.cmake)'
   done
 )

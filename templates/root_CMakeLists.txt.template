@@ -15,6 +15,8 @@ sf_init_project(%%{conf_project_name})
 sf_set_cxxstd(17)
 
 sf_add_default_subdirectories()
+add_subdirectory("%%{conf_scaffold_third_party}")
+
 sf_add_common_compiler_flags()
 
 include(cmake/%%{conf_project_name}.cmake)

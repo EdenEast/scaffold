@@ -5,6 +5,14 @@
 
 # add your conf for %%{1} here:
 
-
-# Add %%{1} to the build list
-add_subdirectory(%%{1})
+%%(
+    if [ -e "%%{conf_scaffold_third_party}/%%{1}/CMakeLists.txt" ]
+    then
+        echo "# Add %%{1} to the build list:"
+        echo "add_subdirectory(%%{1})"
+    else
+        echo "# %%PWD %%{1} does not have a CMakeLists.txt file."
+        echo "# Uncomment the line below if this is not the case:"
+        echo "# add_subdirectory(%%{1}) "
+    fi
+)
