@@ -2,10 +2,15 @@
 ## Default configuration for the scaffold generator
 ##
 
+help_conf_scaffold_repository_url="URL of the scaffold repository"
 conf_scaffold_repository_url="https://github.com/CruizeMissile/scaffold.git"
+
+help_conf_scaffold_repository_url="branch of the scaffold repository (ignored when using file://)."
 conf_scaffold_repository_branch="master"
 
-# name of the third_party folder
+help_conf_scaffold_third_party="where scaffold will be cloned"
 conf_scaffold_third_party=third_party
+
+help_conf_scaffold_header_ext="where generating header files, what extension ?"
 conf_scaffold_header_ext=hpp
 
