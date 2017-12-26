@@ -14,8 +14,9 @@ git-add-submodule "$conf_scaffold_repository_url" "${conf_scaffold_third_party}/
 # re-generate the root cmakelists file
 generate CMakeLists.txt templates/root_CMakeLists.txt.template
 
-# generate the user-defined cmake file only if it doesn't already exists
+# generate the user-defined cmake files only if they don't already exist
 [ ! -f cmake/${conf_project_name}.cmake ] && generate cmake/${conf_project_name}.cmake templates/user_def_CMakeLists.txt.template
+[ ! -f samples/samples.cmake ] && generate samples/samples.cmake templates/user_def_CMakeLists.txt.template
 
 # generate the project cmakelists file only if it doesn't already exists
 if [ ! -f ${conf_project_name}/CMakeLists.txt ]
