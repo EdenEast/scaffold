@@ -57,7 +57,6 @@ set(CMAKE_INSTALL_MESSAGE LAZY) # no up-to-date messages on installation
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # value of CXX_STANDARD on targets is required
 set_property(GLOBAL PROPERTY USE_FOLDERS ON) # organize targets into folders
 
-
 if(MSVC)
   set(CMAKE_MODULE_INSTALL_PATH ${PROJECT_NAME}/cmake)
 else()
@@ -70,3 +69,11 @@ endif()
 
 string(TOUPPER ${PROJECT_NAME} UPPER_PROJECT_NAME)
 string(TOLOWER ${PROJECT_NAME} LOWER_PROJECT_NAME)
+
+function(check_master_project is_project)
+  if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    set(${is_project} ON PARENT_SCOPE)
+  else()
+    set(${is_project} OFF PARENT_SCOPE)
+  endif()
+endfunction(check_master_project)
