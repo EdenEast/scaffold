@@ -1,10 +1,18 @@
 
+# Includ guard
+if(SCAF_FILTERS_DONE)
+  return()
+endif()
+set(SCAF_FILTERS_DONE ON)
+
+
 function(target_set_folder target folder)
-  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
   set_target_properties(${target} PROPERTIES FOLDER ${folder})
 endfunction()
 
 function(target_source_group target)
+  # note on getting the source directory on a target is cmake 3.7+
+  # https://stackoverflow.com/a/44064705
   get_target_property(target_source_list ${target} SOURCES)
   get_target_property(target_source_directory ${target} SOURCE_DIR)
 
@@ -27,16 +35,3 @@ function(target_source_group target)
     source_group("${last_dir}" FILES ${files})
   endif()
 endfunction()
-
-# function(target_source_group target)
-#   # note on getting the source directory on a target https://stackoverflow.com/a/44064705
-#   get_target_property(target_source_list ${target} SOURCES)
-#   get_target_property(target_source_directory ${target} SOURCE_DIR)
-
-#   foreach(source ${target_source_list})
-#     get_filename_component(source_directory ${source} DIRECTORY)
-#     file(RELATIVE_PATH group ${target_source_directory} ${source_directory})
-#     string(REPLACE "/" "\\" group "${group}")
-#     source_group("${group}" FILES ${source})
-#   endforeach()
-# endfunction()
