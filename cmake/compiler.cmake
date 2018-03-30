@@ -21,7 +21,10 @@ endif()
 function(target_common_compiler_flags target visiblity)
   # if the compiler is clang or gcc add common compiler flags
   if (CMAKE_COMPILER_IS_CLANG OR CMAKE_COMPILER_IS_GNUCC)
-    list(APPEND cxx_compiler_flags "-Wno-unused-function" "-Wno-multichar" "-Wno-unused-parameter")
+    list(APPEND cxx_compiler_flags
+      "-Wno-unused-function" "-Wno-multichar" "-Wno-unused-parameter"
+      "-pedantic" "-W" "-Wall" "-Wextra"
+    )
 
     # BUILD_TYPE specific flags
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
