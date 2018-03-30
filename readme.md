@@ -5,16 +5,19 @@
 Scaffold is a cmake library that helps you setup and maintain your cmake scripts. Scaffold is ment to be used as a submodule in your project.
 
 ## Quick start
-1. Add this repository as a submodule of your project, in `./extlibs/scaffold` or `./3rdparty/scaffold` or `./third_party/scaffold`:
+1. Add this repository as a submodule of your project:
 
     ```bash
-    git submodule add https://github.com/cruizemissile/scaffold.git extlibs/scaffold
+    git submodule add https://github.com/cruizemissile/scaffold.git external/scaffold
     ```
 
 2. Include this repository in your project's CMakeLists:
 
     ```cmake
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extlibs/scaffold/cmake")
+    cmake_minimum_required(VERSION 3.7)
+    project(foo) # Note: make sure that you declare the project before you include scaffold
+
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/scaffold")
     include(scaffold)
     ```
 
@@ -27,44 +30,59 @@ Scaffold is a cmake library that helps you setup and maintain your cmake scripts
 
 # Not sure the min version of cmake that is required.
 # This needs to be tested. (currently developing with 3.9)
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.7)
 
-# Including Scaffold to start off
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extlibs/scaffold/cmake")
+# Make sure that you define the project before you include 
+# Scaffold into your file
+project(foo)
+
+# Include scaffold into the project from where you added 
+# it as a submodule
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/external/scaffold")
 include(scaffold)
 
-# Inital setup for the project. This call does the following:
-#   - Checks to see that you are running cmake with a build folder
-#   - Resolve an undefined BUILD_TYPE and will set the default to `Release`
-#   - Create a project with the name passed. ex `foobar`
-#   - enables testing for the project
-#   - Defines the project name in uppercase ex `FOOBAR_UPPER`
-#   - Defines the project's root dir. This is the same as `CMAKE_SOURCE_DIR` ex `FOOBAR_ROOT_DIR`
-#   - Defines the project's source dir. This is default to `ROOT_DIR/PROJECT_NAME` ex `FOOBAR_SOURCE_DIR`
-#   - Add common module paths for cmake
-sf_init_project(foobar)
+# Here we are checking to see if the project is the master project.
+# We can create options based on if the project is the master or not.
+# Only build samples and tests if we are the master project.
+# If we are a submodule then we dont have to build the sample and tests.
+check_master_project(FOO_MASTER_PROJECT)
+option(ENABLE_SAMPLES "Build samples for foo" ${FOO_MASTER_PROJECT})
+option(ENABLE_TESTS "Build tests for foo" ${FOO_MASTER_PROJECT})
 
-# Setting the c++ version for the project.
-sf_set_cxxstd(17)
+# Include the subdirectory that defines the the target
+add_subdirectory(foo)
 
-# Setting up the default subdirectories.
-# The default subdirectories are:
-#   - project_name
-#   - samples
-#   - tests
-sf_add_default_subdirectories()
+if(ENABLE_SAMPLES)
+    add_subdirectory(samples)
+endif()
 
-# Setting up common compiler flags depending on BUILD_TYPE and COMPILER
-sf_add_common_compiler_flags()
-
-# If this project is a header only project then we can setup the header only library
-# that is used to link to other targets in cmake
-#
-# Note: ${FOOBAR_SOURCE_DIR} is defined when we called: `sf_init_project`
-sf_header_only_install_glob("foobar" ${FOOBAR_SOURCE_DIR} "INSTALL")
+if(ENABLE_TESTS)
+    add_subdirectory(tests)
+endif()
 ```
 
 ### Setting up a target
 ```cmake
-# TODO: sample here
+# foo/CMakeLists.txt
+
+# -------------------------------------------------
+# An example of a library target
+file(GLOB_RECURSE source_files
+    "${CMAKE_CURRENT_LIST_DIR}/*.hpp"
+    "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
+)
+
+add_library(foo "${source_files}")
+target_common_compiler_flags(foo PUBLIC)
+target_source_group(foo)
+
+# -------------------------------------------------
+# An example of a header only / interface library
+file(GLOB_RECURSE source_files
+    "${CMAKE_CURRENT_LIST_DIR}/*.hpp"
+)
+
+add_library(bar INTERFACE)
+target_common_compiler_flags(foo INTERFACE)
+target_source_group(foo)
 ```
