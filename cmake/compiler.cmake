@@ -20,6 +20,42 @@ endif()
 
 include(CMakeParseArguments)
 
+function(gcc_compile_flags target visiblity)
+  cmake_parse_arguments(THIS "" "" "FLAGS" ${ARGN})
+  if(CMAKE_COMPILER_IS_GCC)
+    foreach(flag "${THIS_FLAGS}")
+      target_compile_options(${target} ${visiblity} ${flag})
+    endforeach()
+  endif()
+endfunction()
+
+function(clang_compile_flags target visiblity)
+  cmake_parse_arguments(THIS "" "" "FLAGS" ${ARGN})
+  if(CMAKE_COMPILER_IS_CLANG)
+    foreach(flag "${THIS_FLAGS}")
+      target_compile_options(${target} ${visiblity} ${flag})
+    endforeach()
+  endif()
+endfunction()
+
+function(gcc_clang_compile_flags target visiblity)
+  cmake_parse_arguments(THIS "" "" "FLAGS" ${ARGN})
+  if(CMAKE_COMPILER_IS_GCC OR CMAKE_COMPILER_IS_CLANG)
+    foreach(flag "${THIS_FLAGS}")
+      target_compile_options(${target} ${visiblity} ${flag})
+    endforeach()
+  endif()
+endfunction()
+
+function(msvc_compiler_flags target visiblity)
+  cmake_parse_arguments(THIS "" "" "FLAGS" ${ARGN})
+  if(CMAKE_COMPILER_IS_MSVC)
+    foreach(flag "${THIS_FLAGS}")
+      target_compile_options(${target} ${visiblity} ${flag})
+    endforeach()
+  endif()
+endfunction()
+
 function(target_common_compiler_flags target)
   set(single_args VISIBILITY)
   cmake_parse_arguments(THIS "" "${single_args}" "" ${ARGN})
@@ -37,10 +73,10 @@ function(target_common_compiler_flags target)
   endif()
 
   # if the compiler is clang or gcc add common compiler flags
-  if (CMAKE_COMPILER_IS_CLANG OR CMAKE_COMPILER_IS_GNUCC)
+  if (CMAKE_COMPILER_IS_CLANG OR CMAKE_COMPILER_IS_GCC)
     list(APPEND cxx_compiler_flags
+      "-W" "-Wall" "-Wextra" "-std=c++17"
       "-Wno-unused-function" "-Wno-multichar" "-Wno-unused-parameter"
-      "-pedantic" "-W" "-Wall" "-Wextra"
     )
 
     # BUILD_TYPE specific flags
@@ -53,7 +89,7 @@ function(target_common_compiler_flags target)
     endif()
 
     # compiler specific information
-    if(CMAKE_COMPILER_IS_GNUCC)
+    if(CMAKE_COMPILER_IS_GCC)
       # https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html
       if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         list(APPEND cxx_compiler_flags "-fno-inline" "-Og")
@@ -70,7 +106,7 @@ function(target_common_compiler_flags target)
         list(APPEND cxx_compiler_flags "-Oz")
       endif()
     endif()
-  elseif(${CMAKE_COMPILER_IS_MSVC})
+  elseif(CMAKE_COMPILER_IS_MSVC)
     list(APPEND cxx_compiler_flags "/std:c++latest")
   endif()
 

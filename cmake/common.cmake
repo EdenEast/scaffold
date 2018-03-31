@@ -55,6 +55,7 @@ endif()
 
 set(CMAKE_INSTALL_MESSAGE LAZY) # no up-to-date messages on installation
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # value of CXX_STANDARD on targets is required
+set(CMAKE_CXX_EXTENSIONS OFF) # do not use compiler specific extentions
 set_property(GLOBAL PROPERTY USE_FOLDERS ON) # organize targets into folders
 
 if(MSVC)
