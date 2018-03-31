@@ -7,7 +7,7 @@ set(SCAF_INTERFACE_DONE ON)
 include(CMakeParseArguments)
 
 macro(add_interface_library target)
-  cmake_parse_arguments(THIS "" "IDE_TARGET" "SOURCES")
+  cmake_parse_arguments(THIS "" "IDE_TARGET" "SOURCES" ${ARGN})
 
   add_library(${target} INTERFACE)
   set_target_properties(${target} PROPERTIES
