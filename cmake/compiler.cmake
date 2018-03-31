@@ -18,7 +18,24 @@ endif()
 # option(SCAF_COMMON_WARN_DEPRECATED "Enable compiler deprecation warnings" ON)
 # option(SCAF_COMMOON_DISABLE_WARN_AS_ERROR "Disable warning as error flag" OFF)
 
-function(target_common_compiler_flags target visiblity)
+include(CMakeParseArguments)
+
+function(target_common_compiler_flags target)
+  set(single_args VISIBILITY)
+  cmake_parse_arguments(THIS "" "${single_args}" "" ${ARGN})
+
+  # Handle visiblity
+  if (THIS_VISIBILITY)
+    set(visiblity ${THIS_VISIBILITY})
+  else()
+    get_target_property(target_type ${target} TYPE)
+    if(${target_type} STREQUAL "INTERFACE_LIBRARY")
+      set(visiblity "INTERFACE")
+    else()
+      set(visiblity "PUBLIC")
+    endif()
+  endif()
+
   # if the compiler is clang or gcc add common compiler flags
   if (CMAKE_COMPILER_IS_CLANG OR CMAKE_COMPILER_IS_GNUCC)
     list(APPEND cxx_compiler_flags
