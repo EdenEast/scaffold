@@ -75,7 +75,7 @@ function(target_common_compiler_flags target)
   # if the compiler is clang or gcc add common compiler flags
   if (CMAKE_COMPILER_IS_CLANG OR CMAKE_COMPILER_IS_GCC)
     list(APPEND cxx_compiler_flags
-      "-W" "-Wall" "-Wextra" "-std=c++17"
+      "-W" "-Wall" "-Wextra" "-std=c++1z"
       "-Wno-unused-function" "-Wno-multichar" "-Wno-unused-parameter"
     )
 
@@ -100,6 +100,7 @@ function(target_common_compiler_flags target)
       endif()
     else()
       # https://clang.llvm.org/docs/DiagnosticsReference.html
+      list(APPEND cxx_compiler_flags "-Wno-c++17-extensions")
       if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
       elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
