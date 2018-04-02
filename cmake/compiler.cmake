@@ -20,6 +20,25 @@ endif()
 
 include(CMakeParseArguments)
 
+function(get_cxx_compiler_option version flag)
+  if (CMAKE_COMPILER_IS_MSVC)
+    list(APPEND versions "17" "14" "11")
+    list(FIND versions ${version} index)
+    if (${index} GREATER -1)
+      list(GET versions ${index} value)
+      set(cmd "/std:c++${value}")
+    endif()
+  else()
+    list(APPEND versions "17" "14" "11")
+    list(FIND versions ${version} index)
+    if (${index} GREATER -1)
+      list(GET versions ${index} value)
+      set(cmd "-std=c++${value}")
+    endif()
+  endif()
+  set(${flag} ${cmd} PARENT_SCOPE)
+endfunction(get_cxx_compiler_option)
+
 function(gcc_compile_flags target visiblity)
   cmake_parse_arguments(THIS "" "" "FLAGS" ${ARGN})
   if(CMAKE_COMPILER_IS_GCC)
@@ -73,10 +92,11 @@ function(target_common_compiler_flags target)
   endif()
 
   # if the compiler is clang or gcc add common compiler flags
+  set(cxx_compiler_flags "")
   if (CMAKE_COMPILER_IS_CLANG OR CMAKE_COMPILER_IS_GCC)
     list(APPEND cxx_compiler_flags
-      "-W" "-Wall" "-Wextra" "-std=c++1z"
-      "-Wno-unused-function" "-Wno-multichar" "-Wno-unused-parameter"
+      "-std=c++17" "-W" "-Wall" "-Wextra" "-Wno-unused-function"
+      "-Wno-multichar" "-Wno-unused-parameter"
     )
 
     # BUILD_TYPE specific flags
@@ -111,7 +131,32 @@ function(target_common_compiler_flags target)
     list(APPEND cxx_compiler_flags "/std:c++latest")
   endif()
 
-  foreach(flag "${cxx_compiler_flags}")
+  foreach(flag ${cxx_compiler_flags})
     target_compile_options(${target} ${visiblity} ${flag})
   endforeach()
 endfunction()
+
+function(target_set_cxx target version)
+  cmake_parse_arguments(THIS "VISIBILITY" "" "")
+
+  if (THIS_VISIBILITY)
+    set(visiblity ${THIS_VISIBILITY})
+  else()
+    get_target_property(target_type ${target} TYPE)
+    if (${target_type} STREQUAL "INTERFACE_LIBRARY")
+      set(visiblity INTERFACE)
+    else()
+      set(visiblity PUBLIC)
+    endif()
+  endif()
+
+  set_target_properties(${target} PROPERTIES
+    CXX_STANDARD ${version}
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+  )
+
+  get_cxx_compiler_option(${version} flag)
+  target_compile_options(${target} ${visiblity} ${flag})
+endfunction(target_set_cxx)
+
