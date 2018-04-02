@@ -33,7 +33,7 @@ macro(setup_samples)
     )
 
     add_executable(${sample_name} "${sample_files}")
-    target_source_group(${sample_name})
+    target_source_group(${sample_name} DIRECTORY ${sample_path})
     target_set_folder(${sample_name} "Samples")
 
     if(THIS_TARGET_DEPENDENCIES)
