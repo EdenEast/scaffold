@@ -1,0 +1,15 @@
+
+if(SCAF_OPERATING_SYSTEM)
+  return()
+endif()
+set(SCAF_OPERATING_SYSTEM ON)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+  set(CMAKE_OS_IS_WINDOWS ON)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  set(CMAKE_OS_IS_LINUX ON)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+  set(CMAKE_OS_IS_OSX ON)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+  set(CMAKE_OS_IS_ANDROID ON)
+endif()

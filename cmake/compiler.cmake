@@ -19,6 +19,7 @@ endif()
 # option(SCAF_COMMOON_DISABLE_WARN_AS_ERROR "Disable warning as error flag" OFF)
 
 include(CMakeParseArguments)
+include(CheckCXXCompilerFlag)
 
 function(get_cxx_compiler_option version flag)
   if (CMAKE_COMPILER_IS_MSVC)
@@ -150,13 +151,43 @@ function(target_set_cxx target version)
     endif()
   endif()
 
+  list(APPEND version_string_list "11" "14" "17")
+  list(APPEND alt_versions "0x" "1y" "1z")
+  list(APPEND version_list cxx_std_11 cxx_std_14 cxx_std_17)
+  list(FIND version_string_list ${version} index)
+
+  if(CMAKE_COMPILER_IS_MSVC)
+    set(compiler_flags_template "/std:c++")
+  else()
+    set(compiler_flags_template "-std=c++")
+  endif()
+
+  if(${index} GREATER -1)
+    check_cxx_compiler_flag(${compiler_flags_template}${flag} result)
+    if(result)
+      set(cmd ${compiler_flags_template}${flags})
+    elseif()
+      list(GET alt_versions ${index} value)
+      check_cxx_compiler_flag(${compiler_flags_template}${value} result)
+      if(result)
+        set(cmd ${compiler_flags_template}${value})
+      endif()
+    endif()
+  endif()
+
+  if(cmd)
+    target_compile_options(${target} ${visiblity} ${cmd})
+  endif()
+
   set_target_properties(${target} PROPERTIES
     CXX_STANDARD ${version}
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
   )
 
-  get_cxx_compiler_option(${version} flag)
-  target_compile_options(${target} ${visiblity} ${flag})
+  list(GET version_list ${index} cxx_version)
+  if(cxx_version)
+    target_compile_features(${target} PUBLIC ${cxx_version})
+  endif()
 endfunction(target_set_cxx)
 
