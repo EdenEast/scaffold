@@ -77,8 +77,7 @@ function(msvc_compiler_flags target visiblity)
 endfunction()
 
 function(target_common_compiler_flags target)
-  set(single_args VISIBILITY)
-  cmake_parse_arguments(THIS "" "${single_args}" "" ${ARGN})
+    cmake_parse_arguments(THIS "WARN_AS_ERROR" "VISIBILITY" "" ${ARGN})
 
   # Handle visiblity
   if (THIS_VISIBILITY)
@@ -96,7 +95,7 @@ function(target_common_compiler_flags target)
   set(cxx_compiler_flags "")
   if (CMAKE_COMPILER_IS_CLANG OR CMAKE_COMPILER_IS_GCC)
     list(APPEND cxx_compiler_flags
-      "-std=c++17" "-W" "-Wall" "-Wextra" "-Wno-unused-function"
+      "-W" "-Wall" "-Wextra" "-Wno-unused-function"
       "-Wno-multichar" "-Wno-unused-parameter"
     )
 
@@ -121,7 +120,7 @@ function(target_common_compiler_flags target)
       endif()
     else()
       # https://clang.llvm.org/docs/DiagnosticsReference.html
-      list(APPEND cxx_compiler_flags "-Wno-c++17-extensions")
+      list(APPEND cxx_compiler_flags "-Wno-unknown-warning-option" "-Wno-c++17-extensions")
       if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
       elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
@@ -129,7 +128,15 @@ function(target_common_compiler_flags target)
       endif()
     endif()
   elseif(CMAKE_COMPILER_IS_MSVC)
-    list(APPEND cxx_compiler_flags "/std:c++latest")
+      list(APPEND cxx_compiler_flags "/MP")
+  endif()
+
+  if(THIS_WARN_AS_ERROR)
+    if(CMAKE_COMPILER_IS_MSVC)
+      list(APPEND cxx_compiler_flags "/WX")
+    else()
+      list(APPEND cxx_compiler_flags "-Werror")
+    endif()
   endif()
 
   foreach(flag ${cxx_compiler_flags})
@@ -162,15 +169,14 @@ function(target_set_cxx target version)
 
   if(CMAKE_COMPILER_IS_MSVC)
     set(compiler_flags_template "/std:c++")
-
-    else()
+  else()
     set(compiler_flags_template "-std=c++")
   endif()
 
-  check_cxx_compiler_flag(${compiler_flags_template}${flag} result)
+  check_cxx_compiler_flag(${compiler_flags_template}${version} result)
   if(result)
-    set(cmd ${compiler_flags_template}${flags})
-  elseif()
+    set(cmd ${compiler_flags_template}${version})
+  else()
     list(GET alt_versions ${index} value)
     check_cxx_compiler_flag(${compiler_flags_template}${value} result)
     if(result)
