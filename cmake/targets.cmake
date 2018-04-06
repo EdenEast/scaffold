@@ -10,7 +10,7 @@ include(CMakeParseArguments)
 
 macro(create_library target)
   # Parse arguments
-  cmake_parse_arguments(THIS "NO_COMMON_FLAGS" "FILTER_DIRECTORY;CXX_VERSION" "SOURCE_LIST;DEPENDS" ${ARGS})
+  cmake_parse_arguments(THIS "NO_COMMON_FLAGS" "FILTER_DIRECTORY;CXX_VERSION;VISIBILITY" "SOURCE_LIST;INCLUDE_DIR;DEPENDS" ${ARGN})
 
   if(NOT THIS_SOURCE_LIST)
     message("You are creating a library but have not passed any source files.")
@@ -18,10 +18,19 @@ macro(create_library target)
     message(FATAL_ERROR "Pass 'SOURCE_LIST' files to target: ${target}")
   endif()
 
+  string(TOUPPER ${target} target_upper)
+  set(${target_upper}_LIB ${target})
+
   # Create the target
   add_library(${target} ${THIS_SOURCE_LIST})
   set_target_properties(${target} PROPERTIES LINKER_LANGUAGE CXX)
-  target_source_group(${taget} DIRECTORY ${THIS_FILTER_DIRECTORY})
+  target_source_group(${target} DIRECTORY ${THIS_FILTER_DIRECTORY})
+
+  if(THIS_VISIBILITY)
+    set(target_visibility ${THIS_VISIBILITY})
+  else()
+    set(target_visibility PUBLIC)
+  endif()
 
   if(NOT THIS_NO_COMMON_FLAGS)
     target_common_compiler_flags(${target})
@@ -33,15 +42,22 @@ macro(create_library target)
 
   if(THIS_DEPENDS)
     foreach(depend ${THIS_DEPENDS})
-      target_link_libraries(${target} PUBLIC ${depend})
+      target_link_libraries(${target} ${target_visibility} ${depend})
+    endforeach()
+  endif()
+
+  if(THIS_INCLUDE_DIR)
+    foreach(include_dir ${THIS_INCLUDE_DIR})
+      target_include_directories(${target} ${target_visibility} ${include_dir})
     endforeach()
   endif()
 endmacro(create_library)
 
 macro(create_interface_library target)
   # Parse arguments
-  cmake_parse_arguments(THIS "NO_IDE_TARGET;NO_COMMON_FLAGS" "FILTER_DIRECTORY;CXX_VERSION" "SOURCE_LIST;DEPENDS" ${ARGS})
+  cmake_parse_arguments(THIS "NO_IDE_TARGET;NO_COMMON_FLAGS" "FILTER_DIRECTORY;CXX_VERSION" "SOURCE_LIST;INCLUDE_DIR;DEPENDS" ${ARGN})
 
+  # Defining the TARGET_LIB variable that can be used to call the targets
   string(TOUPPER ${target} target_upper)
   set(${target_upper}_LIB lib${target})
 
@@ -59,6 +75,12 @@ macro(create_interface_library target)
   if(THIS_DEPENDS)
     foreach(depend ${THIS_DEPENDS})
       target_link_libraries(${target} PUBLIC ${depend})
+    endforeach()
+  endif()
+
+  if(THIS_INCLUDE_DIR)
+    foreach(include_dir ${THIS_INCLUDE_DIR})
+      target_include_directories(${target} ${target_visibility} ${include_dir})
     endforeach()
   endif()
 
