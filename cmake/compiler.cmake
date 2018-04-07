@@ -158,6 +158,8 @@ function(target_set_cxx target version)
     endif()
   endif()
 
+  get_target_property(target_type ${target} TYPE)
+
   list(APPEND version_string_list "11" "14" "17")
   list(APPEND alt_versions "0x" "1y" "1z")
   list(APPEND version_list cxx_std_11 cxx_std_14 cxx_std_17)
@@ -188,13 +190,15 @@ function(target_set_cxx target version)
     target_compile_options(${target} ${visiblity} ${cmd})
   endif()
 
-  set_target_properties(${target} PROPERTIES
-    CXX_STANDARD ${version}
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
-  )
+  if(NOT (${target_type} STREQUAL "INTERFACE_LIBRARY"))
+    set_target_properties(${target} PROPERTIES
+      CXX_STANDARD ${version}
+      CXX_STANDARD_REQUIRED ON
+      CXX_EXTENSIONS OFF
+    )
+  endif()
 
   list(GET version_list ${index} cxx_version)
-  target_compile_features(${target} PUBLIC ${cxx_version})
+  target_compile_features(${target} ${visiblity} ${cxx_version})
 endfunction(target_set_cxx)
 
