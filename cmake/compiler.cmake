@@ -120,6 +120,8 @@ function(target_common_compiler_flags target)
       endif()
     else()
       # https://clang.llvm.org/docs/DiagnosticsReference.html
+      # If compiler is clang use gcc version of stl as it is more feature complete
+      List(APPEND cxx_compiler_flags "-stdlib=libstdc++")
       list(APPEND cxx_compiler_flags "-Wno-unknown-warning-option" "-Wno-c++17-extensions")
       if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
