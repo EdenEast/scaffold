@@ -91,8 +91,14 @@ function(target_common_compiler_flags target)
     endif()
   endif()
 
-  # if the compiler is clang or gcc add common compiler flags
   set(cxx_compiler_flags "")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # If compiler is clang use gcc version of stl as it is more feature complete
+    # also make sure that you have gcc installed. This also cannot happen for AppleClang
+    list(APPEND cxx_compiler_flags "-stdlib=libstdc++")
+  endif()
+
+  # if the compiler is clang or gcc add common compiler flags
   if (CMAKE_COMPILER_IS_CLANG OR CMAKE_COMPILER_IS_GCC)
     list(APPEND cxx_compiler_flags
       "-W" "-Wall" "-Wextra" "-Wno-unused-function"
