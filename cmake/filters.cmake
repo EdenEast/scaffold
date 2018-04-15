@@ -58,6 +58,7 @@ function(target_source_group target)
   foreach(source ${target_source_list})
     get_filename_component(source_directory ${source} DIRECTORY)
     file(RELATIVE_PATH dir "${target_source_directory}" "${source_directory}")
+    string(REPLACE "/"  "\\" dir "${dir}")
 
     if (NOT "${dir}" STREQUAL "${last_dir}")
       if (files)
