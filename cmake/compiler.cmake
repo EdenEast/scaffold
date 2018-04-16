@@ -21,25 +21,6 @@ endif()
 include(CMakeParseArguments)
 include(CheckCXXCompilerFlag)
 
-function(get_cxx_compiler_option version flag)
-  if (CMAKE_COMPILER_IS_MSVC)
-    list(APPEND versions "17" "14" "11")
-    list(FIND versions ${version} index)
-    if (${index} GREATER -1)
-      list(GET versions ${index} value)
-      set(cmd "/std:c++${value}")
-    endif()
-  else()
-    list(APPEND versions "17" "14" "11")
-    list(FIND versions ${version} index)
-    if (${index} GREATER -1)
-      list(GET versions ${index} value)
-      set(cmd "-std=c++${value}")
-    endif()
-  endif()
-  set(${flag} ${cmd} PARENT_SCOPE)
-endfunction(get_cxx_compiler_option)
-
 function(gcc_compile_flags target visiblity)
   cmake_parse_arguments(THIS "" "" "FLAGS" ${ARGN})
   if(CMAKE_COMPILER_IS_GCC)
@@ -126,8 +107,6 @@ function(target_common_compiler_flags target)
       endif()
     else()
       # https://clang.llvm.org/docs/DiagnosticsReference.html
-      # If compiler is clang use gcc version of stl as it is more feature complete
-      List(APPEND cxx_compiler_flags "-stdlib=libstdc++")
       list(APPEND cxx_compiler_flags "-Wno-unknown-warning-option" "-Wno-c++17-extensions")
       if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -166,44 +145,21 @@ function(target_set_cxx target version)
     endif()
   endif()
 
-  get_target_property(target_type ${target} TYPE)
-
   list(APPEND version_string_list "11" "14" "17")
-  list(APPEND alt_versions "0x" "1y" "1z")
   list(APPEND version_list cxx_std_11 cxx_std_14 cxx_std_17)
   list(FIND version_string_list ${version} index)
 
   if(${index} EQUAL -1)
-    message(FATAL_ERROR "Unknown cxx version ${version}")
+    message(FATAL_ERROR "[Scaffold]: Unknown cxx version ${version}")
   endif()
 
   if(CMAKE_COMPILER_IS_MSVC)
     set(compiler_flags_template "/std:c++")
-  else()
-    set(compiler_flags_template "-std=c++")
-  endif()
 
-  check_cxx_compiler_flag(${compiler_flags_template}${version} result)
-  if(result)
-    set(cmd ${compiler_flags_template}${version})
-  else()
-    list(GET alt_versions ${index} value)
-    check_cxx_compiler_flag(${compiler_flags_template}${value} result)
+    check_cxx_compiler_flag(${compiler_flags_template}${version} result)
     if(result)
-      set(cmd ${compiler_flags_template}${value})
+      target_compile_options(${target} ${visiblity} ${compiler_flags_template}${version})
     endif()
-  endif()
-
-  if(cmd)
-    target_compile_options(${target} ${visiblity} ${cmd})
-  endif()
-
-  if(NOT (${target_type} STREQUAL "INTERFACE_LIBRARY"))
-    set_target_properties(${target} PROPERTIES
-      CXX_STANDARD ${version}
-      CXX_STANDARD_REQUIRED ON
-      CXX_EXTENSIONS OFF
-    )
   endif()
 
   list(GET version_list ${index} cxx_version)
