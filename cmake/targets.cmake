@@ -19,7 +19,7 @@ macro(create_library target)
   endif()
 
   string(TOUPPER ${target} target_upper)
-  set(${target_upper}_LIB ${target})
+  set(${target_upper}_LIB ${target} CACHE FORCE ${target_upper}_LIB)
 
   # Create the target
   add_library(${target} ${THIS_SOURCE_LIST})
@@ -59,7 +59,7 @@ macro(create_interface_library target)
 
   # Defining the TARGET_LIB variable that can be used to call the targets
   string(TOUPPER ${target} target_upper)
-  set(${target_upper}_LIB lib${target})
+  set(${target_upper}_LIB lib${target} CACHE FORCE ${target_upper}_LIB)
 
   # Create the target
   add_library(${${target_upper}_LIB} INTERFACE)
@@ -86,10 +86,12 @@ macro(create_interface_library target)
 
   if(NOT NO_IDE_TARGET)
     if(NOT THIS_SOURCE_LIST)
-      message("You are creating an ide target but have not passed any source files.")
-      message("Make sure that you pass the sources files with 'SOURCE_LIST'. or 'NOT_IDE_TARGET'")
+      message("-------------------------------------------------------------------------------------")
+      message("| You are creating an ide target but have not passed any source files.              |")
+      message("| Make sure that you pass the sources files with 'SOURCE_LIST'. or 'NOT_IDE_TARGET' |")
+      message("-------------------------------------------------------------------------------------")
       message(FATAL_ERROR "Pass 'SOURCE_LIST' files to target: ${target}")
-    endif()
+      endif()
 
     add_custom_target(${target} SOURCES ${THIS_SOURCE_LIST})
     target_source_group(${target} DIRECTORY ${THIS_FILTER_DIRECTORY})
