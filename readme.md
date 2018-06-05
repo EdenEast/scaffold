@@ -72,17 +72,18 @@ file(GLOB_RECURSE source_files
     "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
 )
 
-add_library(foo "${source_files}")
-target_common_compiler_flags(foo PUBLIC)
-target_source_group(foo)
+create_library(eden SOURCE_LIST ${eden_files} CXX_VERSION 17)
+target_include_directories(eden PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include>
+)
 
 # -------------------------------------------------
 # An example of a header only / interface library
-file(GLOB_RECURSE source_files
-    "${CMAKE_CURRENT_LIST_DIR}/*.hpp"
+file(GLOB_RECURSE bar_sources "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp")
+create_interface_library(bar SOURCE_LIST ${bar_sources} CXX_VERSION 17)
+target_include_directories(${BAR_LIB} INTERFACE
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include>
 )
-
-add_library(bar INTERFACE)
-target_common_compiler_flags(foo INTERFACE)
-target_source_group(foo)
 ```
