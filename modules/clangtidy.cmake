@@ -67,13 +67,11 @@ function(sf_clangtidy_create_command)
     ${format_style_arg}
     ${fix_arg}
     -header-filter=.*
-    -fix-errors
     -checks=clan*,cert*,misc*,perf*,cppc*,read*,mode*,-cert-err58-cpp,-misc-noexcept-move-constructor
     ${SF_CLANGTIDY_SOURCE_LIST}
   )
 
   if(CLANGTIDY_EXECUTABLE)
-    message("creating tidy target")
     add_custom_target(
       tidy
       COMMAND ${CLANGTIDY_EXECUTABLE} ${CLANGTIDY_ARGS}
