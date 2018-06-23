@@ -30,7 +30,7 @@ if(NOT CMAKE_BUID_TYPE)
   if(SCAF_DEFAULT_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE ${SCAF_DEFAULT_BUILD_TYPE} CACHE STRING "Build type" FORCE)
   else()
-    set(CMAKE_BUILD_tYPE Debug CACHE STRING "Build type" FORCE)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
   endif()
 endif()
 
