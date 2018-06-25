@@ -1,5 +1,5 @@
 
-# Includ guard
+# Include guard
 if(SCAF_COMMON_DONE)
   return()
 endif()
