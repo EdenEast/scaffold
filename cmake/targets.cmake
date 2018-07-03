@@ -98,6 +98,56 @@ macro(create_interface_library target)
   endif()
 endmacro(create_interface_library)
 
+macro(create_executable target_name)
+  set(_options "")
+  set(_single_args "DIRECTORY;FOLDER;FILTER_DIRECTORY")
+  set(_multi_args "SOURCE_LIST;EXTENTIONS;DEPENDS")
+  cmake_parse_arguments(THIS "${_options}" "${_single_args}" "${_multi_args}" ${ARGN})
+
+  # Define the source list
+  if(THIS_SOURCE_LIST)
+    set(source_list "${THIS_SOURCE_LIST}")
+  else()
+    if(THIS_DIRECTORY)
+      set(root_directory ${THIS_DIRECTORY})
+    else()
+      set(root_directory ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+
+    set(file_extentions "")
+    if(THIS_EXTENTIONS)
+      foreach(e ${THIS_EXTENTIONS})
+        list(APPEND file_extentions ${root_directory}/${e})
+      endforeach(e ${THIS_EXTENTIONS})
+    else()
+        list(APPEND file_extentions "${root_directory}/*.h" "${root_directory}/*.hpp" "${root_directory}/*.cpp")
+    endif()
+
+    set(source_list "")
+    foreach(f ${file_extentions})
+      set(files "")
+      file(GLOB_RECURSE files ${f})
+      list(APPEND source_list ${files})
+    endforeach(f ${file_extentions})
+  endif()
+
+  add_executable(${target_name} ${source_list})
+
+  if(THIS_FOLDER)
+    target_set_folder(${target_name} ${THIS_FOLDER})
+  endif()
+
+  if(THIS_FILTER_DIRECTORY)
+    target_source_group(${target_name} DIRECTORY ${THIS_FILTER_DIRECTORY})
+  else()
+    target_source_group(${target_name})
+  endif()
+
+  foreach(d ${THIS_DEPENDS})
+    target_link_libraries(${target_name} ${d})
+  endforeach(d ${THIS_DEPENDS})
+endmacro()
+
 macro(create_executables_per_files)
   set(_options "")
   set(_single_args "DIRECTORY;FOLDER;FILTER_DIRECTORY")
@@ -130,21 +180,15 @@ macro(create_executables_per_files)
     get_filename_component(target_name ${f} NAME)
     string(REGEX REPLACE "\\.[^.]*$" "" target_name ${target_name})
 
-    add_executable(${target_name} ${f})
+    create_executable(${target_name}
+      DIRECTORY ${THIS_DIRECTORY}
+      FILTER_DIRECTORY ${THIS_FILTER_DIRECTORY}
+      FOLDER ${THIS_FOLDER}
 
-    if(THIS_FOLDER)
-      target_set_folder(${target_name} ${THIS_FOLDER})
-    endif()
-
-    if(THIS_FILTER_DIRECTORY)
-      target_source_group(${target_name} DIRECTORY ${THIS_FILTER_DIRECTORY})
-    else()
-      target_source_group(${target_name} DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    endif()
-
-    foreach(d ${THIS_DEPENDS})
-      target_link_libraries(${target_name} ${d})
-    endforeach(d ${THIS_DEPENDS})
+      DEPENDS "${THIS_DEPENDS}"
+      EXTENTIONS "${THIS_EXTENTIONS}"
+      SOURCE_LIST "${f}"
+    )
   endforeach()
 endmacro(create_executables_per_files)
 
@@ -181,15 +225,14 @@ macro(create_executables_per_folders)
       list(APPEND file_list ${files})
     endforeach()
 
-    add_executable(${exec_name} "${file_list}")
-    target_source_group(${exec_name} DIRECTORY ${exec_path})
+    create_executable(${exec_name}
+      DIRECTORY ${THIS_DIRECTORY}
+      FILTER_DIRECTORY ${THIS_FILTER_DIRECTORY}
+      FOLDER ${THIS_FOLDER}
 
-    if(THIS_FOLDER)
-      target_set_folder(${exec_name} ${THIS_FOLDER})
-    endif()
-
-    foreach(d ${THIS_DEPENDS})
-      target_link_libraries(${exec_name} ${d})
-    endforeach()
+      DEPENDS "${THIS_DEPENDS}"
+      EXTENTIONS "${THIS_EXTENTIONS}"
+      SOURCE_LIST "${file_list}"
+    )
   endforeach(exec_name ${directory_list})
 endmacro(create_executables_per_folders)
