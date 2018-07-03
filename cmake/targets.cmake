@@ -5,12 +5,16 @@ endif()
 set(SCAF_TARGETS_DONE ON)
 
 include("${CMAKE_CURRENT_LIST_DIR}/compiler.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/directory.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/filters.cmake")
 include(CMakeParseArguments)
 
 macro(create_library target)
   # Parse arguments
-  cmake_parse_arguments(THIS "NO_COMMON_FLAGS" "FILTER_DIRECTORY;CXX_VERSION;VISIBILITY" "SOURCE_LIST;INCLUDE_DIR;DEPENDS" ${ARGN})
+  set(_options "NO_COMMON_FLAGS")
+  set(_single_args "FILTER_DIRECTORY;CXX_VERSION;VISIBLITY")
+  set(_multi_args "SOURCE_LIST;INCLUDE_DIR;DEPENDS")
+  cmake_parse_arguments(THIS "${_options}" "${_single_args}" "${_multi_args}" ${ARGN})
 
   if(NOT THIS_SOURCE_LIST)
     message("You are creating a library but have not passed any source files.")
@@ -18,6 +22,7 @@ macro(create_library target)
     message(FATAL_ERROR "Pass 'SOURCE_LIST' files to target: ${target}")
   endif()
 
+  # Defining the TARGET_LIB variable that can be used to call the targets
   string(TOUPPER ${target} target_upper)
   set(${target_upper}_LIB ${target} CACHE FORCE ${target_upper}_LIB)
 
@@ -40,22 +45,21 @@ macro(create_library target)
     target_set_cxx(${target} ${THIS_CXX_VERSION})
   endif()
 
-  if(THIS_DEPENDS)
-    foreach(depend ${THIS_DEPENDS})
-      target_link_libraries(${target} ${target_visibility} ${depend})
-    endforeach()
-  endif()
+  foreach(depend ${THIS_DEPENDS})
+    target_link_libraries(${target} ${target_visibility} ${depend})
+  endforeach()
 
-  if(THIS_INCLUDE_DIR)
-    foreach(include_dir ${THIS_INCLUDE_DIR})
-      target_include_directories(${target} ${target_visibility} ${include_dir})
-    endforeach()
-  endif()
+  foreach(include_dir ${THIS_INCLUDE_DIR})
+    target_include_directories(${target} ${target_visibility} ${include_dir})
+  endforeach()
 endmacro(create_library)
 
 macro(create_interface_library target)
   # Parse arguments
-  cmake_parse_arguments(THIS "NO_IDE_TARGET;NO_COMMON_FLAGS" "FILTER_DIRECTORY;CXX_VERSION" "SOURCE_LIST;INCLUDE_DIR;DEPENDS" ${ARGN})
+  set(_options "NO_IDE_TARGET;NO_COMMON_FLAGS")
+  set(_single_args "FILTER_DIRECTORY;CXX_VERSION")
+  set(_multi_args "SOURCE_LIST;INCLUDE_DIR;DEPENDS")
+  cmake_parse_arguments(THIS "${_options}" "${_single_args}" "${_multi_args}" ${ARGN})
 
   # Defining the TARGET_LIB variable that can be used to call the targets
   string(TOUPPER ${target} target_upper)
@@ -72,17 +76,13 @@ macro(create_interface_library target)
     target_set_cxx(${${target_upper}_LIB} ${THIS_CXX_VERSION})
   endif()
 
-  if(THIS_DEPENDS)
-    foreach(depend ${THIS_DEPENDS})
-      target_link_libraries(${${target_upper}_LIB} PUBLIC ${depend})
-    endforeach()
-  endif()
+  foreach(depend ${THIS_DEPENDS})
+    target_link_libraries(${${target_upper}_LIB} PUBLIC ${depend})
+  endforeach()
 
-  if(THIS_INCLUDE_DIR)
-    foreach(include_dir ${THIS_INCLUDE_DIR})
-      target_include_directories(${${target_upper}_LIB} ${target_visibility} ${include_dir})
-    endforeach()
-  endif()
+  foreach(include_dir ${THIS_INCLUDE_DIR})
+    target_include_directories(${${target_upper}_LIB} ${target_visibility} ${include_dir})
+  endforeach()
 
   if(NOT NO_IDE_TARGET)
     if(NOT THIS_SOURCE_LIST)
@@ -98,3 +98,98 @@ macro(create_interface_library target)
   endif()
 endmacro(create_interface_library)
 
+macro(create_executables_per_files)
+  set(_options "")
+  set(_single_args "DIRECTORY;FOLDER;FILTER_DIRECTORY")
+  set(_multi_args "DEPENDS;EXTENTIONS")
+  cmake_parse_arguments(THIS "${_options}" "${_single_args}" "${_multi_args}" ${ARGN})
+
+  if(THIS_DIRECTORY)
+    set(root_directory ${THIS_DIRECTORY})
+  else()
+    set(root_directory ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
+
+  set(file_extentions "")
+  if(THIS_EXTENTIONS)
+    foreach(e ${THIS_EXTENTIONS})
+      list(APPEND file_extentions ${root_directory}/${e})
+    endforeach(e ${THIS_EXTENTIONS})
+  else()
+      list(APPEND file_extentions ${root_directory}/*.cpp)
+  endif()
+
+  set(file_list "")
+  foreach(f ${file_extentions})
+    file(GLOB files ${f})
+    list(APPEND file_list ${files})
+  endforeach()
+
+  foreach(f ${file_list})
+    # Get the name from the path and then remove the extention
+    get_filename_component(target_name ${f} NAME)
+    string(REGEX REPLACE "\\.[^.]*$" "" target_name ${target_name})
+
+    add_executable(${target_name} ${f})
+
+    if(THIS_FOLDER)
+      target_set_folder(${target_name} ${THIS_FOLDER})
+    endif()
+
+    if(THIS_FILTER_DIRECTORY)
+      target_source_group(${target_name} DIRECTORY ${THIS_FILTER_DIRECTORY})
+    else()
+      target_source_group(${target_name} DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+
+    foreach(d ${THIS_DEPENDS})
+      target_link_libraries(${target_name} ${d})
+    endforeach(d ${THIS_DEPENDS})
+  endforeach()
+endmacro(create_executables_per_files)
+
+macro(create_executables_per_folders)
+  # Parse arguments
+  set(_options "")
+  set(_single_args "DIRECTORY;FOLDER")
+  set(_multi_args "DEPENDS;EXTENTIONS")
+  cmake_parse_arguments(THIS "${_options}" "${_single_args}" "${_multi_args}" ${ARGN})
+
+  if(THIS_DIRECTORY)
+    set(root_directory ${THIS_DIRECTORY})
+  else()
+    set(root_directory ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
+
+  list_directories(${root_directory} directory_list)
+  foreach(exec_name ${directory_list})
+    set(exec_path ${root_directory}/${exec_name})
+
+    set(file_extentions "")
+    if(THIS_EXTENTIONS)
+      foreach(e ${THIS_EXTENTIONS})
+        list(APPEND file_extentions ${exec_path}/${e})
+      endforeach(e ${THIS_EXTENTIONS})
+    else()
+        list(APPEND file_extentions "${exec_path}/*.h" "${exec_path}/*.hpp" "${exec_path}/*.cpp")
+    endif()
+
+    # Collecting all the files in the folder
+    set(file_list "")
+    foreach(f ${file_extentions})
+      file(GLOB files ${f})
+      list(APPEND file_list ${files})
+    endforeach()
+
+    add_executable(${exec_name} "${file_list}")
+    target_source_group(${exec_name} DIRECTORY ${exec_path})
+
+    if(THIS_FOLDER)
+      target_set_folder(${exec_name} ${THIS_FOLDER})
+    endif()
+
+    foreach(d ${THIS_DEPENDS})
+      target_link_libraries(${exec_name} ${d})
+    endforeach()
+  endforeach(exec_name ${directory_list})
+endmacro(create_executables_per_folders)
