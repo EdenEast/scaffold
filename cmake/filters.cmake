@@ -7,11 +7,11 @@ set(SCAF_FILTERS_DONE ON)
 
 include(CMakeParseArguments)
 
-function(target_set_folder target folder)
+function(sf_target_set_folder target folder)
   set_target_properties(${target} PROPERTIES FOLDER ${folder})
-endfunction()
+endfunction(sf_target_set_folder)
 
-function(target_source_group target)
+function(sf_target_source_group target)
   # Handling arguments
   set(single_args "DIRECTORY")
   set(multi_args "SOURCE_LIST")
@@ -75,4 +75,4 @@ function(target_source_group target)
   if (files)
     source_group("${last_dir}" FILES ${files})
   endif()
-endfunction()
+endfunction(sf_target_source_group)

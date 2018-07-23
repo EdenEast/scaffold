@@ -20,7 +20,7 @@ include (CMakeParseArguments)
 # Clones a repo into a directory at configure time.  For more automated
 # project configuration, consider add_external_git_repo
 #
-function(clone_external_git_repo)
+function(sf_clone_external_git_repo)
   set(oneValueArgs URL TARGET_DIR TAG COMMIT ALWAYS_UPDATE)
   cmake_parse_arguments(THIS "" "${oneValueArgs}" "" ${ARGN} )
 
@@ -69,19 +69,19 @@ function(clone_external_git_repo)
       message(STATUS "Failed to chechout ${THIS_TAG} on ${THIS_URL}")
     endif()
   endif()
-endfunction(clone_external_git_repo)
+endfunction(sf_clone_external_git_repo)
 
 #
 # add_external_git_repo
 # Adds a prepository into a prefix and automatically configures it for use
 # using defalt locations. For more control, use clone_external_git_repo
 #
-macro(add_external_git_repo)
+macro(sf_add_external_git_repo)
   set(options ALWAYS_UPDATE)
   set(oneValueArgs URL PREFIX TAG COMMIT PACKAGE)
   cmake_parse_arguments(THIS "${options}" "${oneValueArgs}" "" ${ARGN} )
 
-  clone_external_git_repo(
+  sf_clone_external_git_repo(
     URL ${THIS_URL}
     TAG ${THIS_TAG}
     COMMIT ${THIS_COMMIT}
@@ -103,4 +103,4 @@ macro(add_external_git_repo)
       NO_CMAKE_SYSTEM_PATH
     )
   endif()
- endmacro(add_external_git_repo)
+ endmacro(sf_add_external_git_repo)

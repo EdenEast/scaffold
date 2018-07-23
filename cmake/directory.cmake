@@ -5,7 +5,7 @@ if(SCAF_DIRECTORY_DONE)
 endif()
 set(SCAF_DIRECTORY_DONE ON)
 
-function(list_directories directory result)
+function(sf_list_directories directory result)
   file(GLOB children RELATIVE ${directory} ${directory}/*)
   set(directory_list "")
 
@@ -16,4 +16,4 @@ function(list_directories directory result)
   endforeach(child ${children})
 
   set(${result} "${directory_list}" PARENT_SCOPE)
-endfunction(list_directories)
+endfunction(sf_list_directories)

@@ -9,7 +9,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/directory.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/filters.cmake")
 include(CMakeParseArguments)
 
-macro(create_library target)
+macro(sf_create_library target)
   # Parse arguments
   set(_options "NO_COMMON_FLAGS")
   set(_single_args "FILTER_DIRECTORY;CXX_VERSION;VISIBLITY")
@@ -29,7 +29,7 @@ macro(create_library target)
   # Create the target
   add_library(${target} ${THIS_SOURCE_LIST})
   set_target_properties(${target} PROPERTIES LINKER_LANGUAGE CXX)
-  target_source_group(${target} DIRECTORY ${THIS_FILTER_DIRECTORY})
+  sf_target_source_group(${target} DIRECTORY ${THIS_FILTER_DIRECTORY})
 
   if(THIS_VISIBILITY)
     set(target_visibility ${THIS_VISIBILITY})
@@ -38,11 +38,11 @@ macro(create_library target)
   endif()
 
   if(NOT THIS_NO_COMMON_FLAGS)
-    target_common_compiler_flags(${target})
+    sf_target_common_compiler_flags(${target})
   endif()
 
   if(THIS_CXX_VERSION)
-    target_set_cxx(${target} ${THIS_CXX_VERSION})
+    sf_target_set_cxx(${target} ${THIS_CXX_VERSION})
   endif()
 
   foreach(depend ${THIS_DEPENDS})
@@ -52,9 +52,9 @@ macro(create_library target)
   foreach(include_dir ${THIS_INCLUDE_DIR})
     target_include_directories(${target} ${target_visibility} ${include_dir})
   endforeach()
-endmacro(create_library)
+endmacro(sf_create_library)
 
-macro(create_interface_library target)
+macro(sf_create_interface_library target)
   # Parse arguments
   set(_options "NO_IDE_TARGET;NO_COMMON_FLAGS")
   set(_single_args "FILTER_DIRECTORY;CXX_VERSION")
@@ -69,11 +69,11 @@ macro(create_interface_library target)
   add_library(${${target_upper}_LIB} INTERFACE)
 
   if(NOT THIS_NO_COMMON_FLAGS)
-    target_common_compiler_flags(${${target_upper}_LIB})
+    sf_target_common_compiler_flags(${${target_upper}_LIB})
   endif()
 
   if(THIS_CXX_VERSION)
-    target_set_cxx(${${target_upper}_LIB} ${THIS_CXX_VERSION})
+    sf_target_set_cxx(${${target_upper}_LIB} ${THIS_CXX_VERSION})
   endif()
 
   foreach(depend ${THIS_DEPENDS})
@@ -94,11 +94,11 @@ macro(create_interface_library target)
       endif()
 
     add_custom_target(${target} SOURCES ${THIS_SOURCE_LIST})
-    target_source_group(${target} DIRECTORY ${THIS_FILTER_DIRECTORY})
+    sf_target_source_group(${target} DIRECTORY ${THIS_FILTER_DIRECTORY})
   endif()
-endmacro(create_interface_library)
+endmacro(sf_create_interface_library)
 
-macro(create_executable target_name)
+macro(sf_create_executable target_name)
   set(_options "")
   set(_single_args "DIRECTORY;FOLDER;FILTER_DIRECTORY")
   set(_multi_args "SOURCE_LIST;EXTENTIONS;DEPENDS")
@@ -134,21 +134,25 @@ macro(create_executable target_name)
   add_executable(${target_name} ${source_list})
 
   if(THIS_FOLDER)
-    target_set_folder(${target_name} ${THIS_FOLDER})
+    sf_target_set_folder(${target_name} ${THIS_FOLDER})
   endif()
 
   if(THIS_FILTER_DIRECTORY)
-    target_source_group(${target_name} DIRECTORY ${THIS_FILTER_DIRECTORY})
+    sf_target_source_group(${target_name} DIRECTORY ${THIS_FILTER_DIRECTORY})
   else()
-    target_source_group(${target_name})
+    sf_target_source_group(${target_name})
   endif()
 
   foreach(d ${THIS_DEPENDS})
     target_link_libraries(${target_name} ${d})
   endforeach(d ${THIS_DEPENDS})
-endmacro()
 
-macro(create_executables_per_files)
+  if(THIS_DIRECTORY)
+    target_include_directories(${target_name} PUBLIC ${THIS_DIRECTORY})
+  endif()
+endmacro(sf_create_executable)
+
+macro(sf_create_executables_per_files)
   set(_options "")
   set(_single_args "DIRECTORY;FOLDER;FILTER_DIRECTORY")
   set(_multi_args "DEPENDS;EXTENTIONS")
@@ -180,7 +184,7 @@ macro(create_executables_per_files)
     get_filename_component(target_name ${f} NAME)
     string(REGEX REPLACE "\\.[^.]*$" "" target_name ${target_name})
 
-    create_executable(${target_name}
+    sf_create_executable(${target_name}
       DIRECTORY ${THIS_DIRECTORY}
       FILTER_DIRECTORY ${THIS_FILTER_DIRECTORY}
       FOLDER ${THIS_FOLDER}
@@ -190,9 +194,9 @@ macro(create_executables_per_files)
       SOURCE_LIST "${f}"
     )
   endforeach()
-endmacro(create_executables_per_files)
+endmacro(sf_create_executables_per_files)
 
-macro(create_executables_per_folders)
+macro(sf_create_executables_per_folders)
   # Parse arguments
   set(_options "")
   set(_single_args "DIRECTORY;FOLDER")
@@ -205,7 +209,7 @@ macro(create_executables_per_folders)
     set(root_directory ${CMAKE_CURRENT_SOURCE_DIR})
   endif()
 
-  list_directories(${root_directory} directory_list)
+  sf_list_directories(${root_directory} directory_list)
   foreach(exec_name ${directory_list})
     set(exec_path ${root_directory}/${exec_name})
 
@@ -225,7 +229,7 @@ macro(create_executables_per_folders)
       list(APPEND file_list ${files})
     endforeach()
 
-    create_executable(${exec_name}
+    sf_create_executable(${exec_name}
       DIRECTORY ${THIS_DIRECTORY}
       FILTER_DIRECTORY ${THIS_FILTER_DIRECTORY}
       FOLDER ${THIS_FOLDER}
@@ -235,4 +239,4 @@ macro(create_executables_per_folders)
       SOURCE_LIST "${file_list}"
     )
   endforeach(exec_name ${directory_list})
-endmacro(create_executables_per_folders)
+endmacro(sf_create_executables_per_folders)

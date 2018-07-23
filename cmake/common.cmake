@@ -5,7 +5,7 @@ if(SCAF_COMMON_DONE)
 endif()
 set(SCAF_COMMON_DONE ON)
 
-# Checkign to see if the install directory is not in the build directory
+# Checking to see if the install directory is not in the build directory
 if(CMAKE_INSTALL_PREFIX STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "Cannot install into build directory")
 endif()
@@ -71,10 +71,10 @@ endif()
 string(TOUPPER ${PROJECT_NAME} UPPER_PROJECT_NAME)
 string(TOLOWER ${PROJECT_NAME} LOWER_PROJECT_NAME)
 
-function(check_master_project is_project)
+function(sf_check_master_project is_project)
   if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     set(${is_project} ON PARENT_SCOPE)
   else()
     set(${is_project} OFF PARENT_SCOPE)
   endif()
-endfunction(check_master_project)
+endfunction(sf_check_master_project)
