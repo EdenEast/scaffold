@@ -42,7 +42,7 @@ macro(sf_create_library target)
   endif()
 
   if(THIS_CXX_VERSION)
-    sf_target_set_cxx(${target} ${THIS_CXX_VERSION})
+    sf_target_cxx(${target} ${THIS_CXX_VERSION})
   endif()
 
   foreach(depend ${THIS_DEPENDS})
@@ -73,7 +73,7 @@ macro(sf_create_interface_library target)
   endif()
 
   if(THIS_CXX_VERSION)
-    sf_target_set_cxx(${${target_upper}_LIB} ${THIS_CXX_VERSION})
+    sf_target_cxx(${${target_upper}_LIB} ${THIS_CXX_VERSION})
   endif()
 
   foreach(depend ${THIS_DEPENDS})

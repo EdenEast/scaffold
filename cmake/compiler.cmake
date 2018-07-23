@@ -131,7 +131,7 @@ function(sf_target_common_compiler_flags target)
   endforeach()
 endfunction(sf_target_common_compiler_flags)
 
-function(sf_target_set_cxx target version)
+function(sf_target_cxx target version)
   cmake_parse_arguments(THIS "VISIBILITY" "" "" ${ARGN})
 
   if (THIS_VISIBILITY)
@@ -164,5 +164,5 @@ function(sf_target_set_cxx target version)
 
   list(GET version_list ${index} cxx_version)
   target_compile_features(${target} ${visiblity} ${cxx_version})
-endfunction(sf_target_set_cxx)
+endfunction(sf_target_cxx)
 
