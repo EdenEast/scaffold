@@ -14,7 +14,7 @@ Scaffold is a cmake library that helps you setup and maintain your cmake scripts
 2. Include this repository in your project's CMakeLists:
 
     ```cmake
-    cmake_minimum_required(VERSION 3.7)
+    cmake_minimum_required(VERSION 3.8)
     project(foo) # Note: make sure that you declare the project before you include scaffold
 
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/scaffold")
@@ -30,7 +30,7 @@ Scaffold is a cmake library that helps you setup and maintain your cmake scripts
 
 # Not sure the min version of cmake that is required.
 # This needs to be tested. (currently developing with 3.9)
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.8)
 
 # Make sure that you define the project before you include 
 # Scaffold into your file
@@ -45,7 +45,7 @@ include(scaffold)
 # We can create options based on if the project is the master or not.
 # Only build samples and tests if we are the master project.
 # If we are a submodule then we dont have to build the sample and tests.
-check_master_project(FOO_MASTER_PROJECT)
+sf_check_master_project(FOO_MASTER_PROJECT)
 option(ENABLE_SAMPLES "Build samples for foo" ${FOO_MASTER_PROJECT})
 option(ENABLE_TESTS "Build tests for foo" ${FOO_MASTER_PROJECT})
 
@@ -72,7 +72,7 @@ file(GLOB_RECURSE source_files
     "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
 )
 
-create_library(eden SOURCE_LIST ${eden_files} CXX_VERSION 17)
+sf_create_library(eden SOURCE_LIST ${eden_files} CXX_VERSION 17)
 target_include_directories(eden PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
@@ -81,7 +81,7 @@ target_include_directories(eden PUBLIC
 # -------------------------------------------------
 # An example of a header only / interface library
 file(GLOB_RECURSE bar_sources "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp")
-create_interface_library(bar SOURCE_LIST ${bar_sources} CXX_VERSION 17)
+sf_create_interface_library(bar SOURCE_LIST ${bar_sources} CXX_VERSION 17)
 target_include_directories(${BAR_LIB} INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
