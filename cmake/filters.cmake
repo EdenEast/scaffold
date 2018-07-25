@@ -32,6 +32,7 @@ function(sf_target_source_group target)
   # as the directory and dont check the target for it.
   if (THIS_DIRECTORY)
     set(target_source_directory ${THIS_DIRECTORY})
+    # message("settings ${target} DIRECTORY to ${THIS_DIRECTORY}")
   else()
     if (IS_INTERFACE)
       get_target_property(target_source_directory ${target} INTERFACE_SOURCE_DIR)
@@ -50,10 +51,14 @@ function(sf_target_source_group target)
 
   # Getting the list of sources from the target. There must be a list
   # of sources for the funciton to apply filters to them
-  if(IS_INTERFACE)
-    get_target_property(target_source_list ${target} INTERFACE_SOURCES)
+  if(THIS_SOURCE_LIST)
+    set(target_source_list ${THIS_SOURCE_LIST})
   else()
-    get_target_property(target_source_list ${target} SOURCES)
+    if(IS_INTERFACE)
+      get_target_property(target_source_list ${target} INTERFACE_SOURCES)
+    else()
+      get_target_property(target_source_list ${target} SOURCES)
+  endif()
   endif()
 
   set(last_dir "")
