@@ -117,7 +117,6 @@ macro(sf_add_external_git_repo)
     OPTIONAL ${THIS_OPTIONAL}
   )
 
-  message("git error code: ${sf_git_error_code}")
   if(sf_git_error_code)
     if(THIS_OPTIONAL)
       set(sf_git_error_code "${error_code}" PARENT_SCOPE)
