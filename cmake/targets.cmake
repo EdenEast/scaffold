@@ -84,6 +84,8 @@ macro(sf_create_interface_library target)
     target_include_directories(${${target_upper}_LIB} ${target_visibility} ${include_dir})
   endforeach()
 
+  target_sources(${${target_upper}_LIB} INTERFACE ${THIS_SOURCE_LIST})
+
   if(NOT NO_IDE_TARGET)
     if(NOT THIS_SOURCE_LIST)
       message("-------------------------------------------------------------------------------------")
@@ -91,7 +93,7 @@ macro(sf_create_interface_library target)
       message("| Make sure that you pass the sources files with 'SOURCE_LIST'. or 'NOT_IDE_TARGET' |")
       message("-------------------------------------------------------------------------------------")
       message(FATAL_ERROR "Pass 'SOURCE_LIST' files to target: ${target}")
-      endif()
+    endif()
 
     add_custom_target(${target} SOURCES ${THIS_SOURCE_LIST})
     sf_target_source_group(${target} DIRECTORY ${THIS_FILTER_DIRECTORY})
