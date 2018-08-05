@@ -3,11 +3,17 @@
 ## CONFIGURATION FOR %%{conf_project_name}
 ##
 
+
+set(target_name "${PROJECT_NAME}")
+
 # Add your sources here:
-set(source_list "%%{conf_project_name}.cpp")
+set(source_list "${CMAKE_CURRENT_LIST_DIR}/%%{conf_project_name}.cpp")
 
-add_executable("${PROJECT_NAME}-target" "${source_list}")
-sf_init_target("${PROJECT_NAME}-target")
 
-# TODO: Fix scaffold
-# sf_add_filter_group("${source_list}" "${CMAKE_CURRENT_SOURCE_DIR}")
+# for an executable:
+#sf_create_executable(${target_name} SOURCE_LIST "${source_list}")
+#sf_target_cxx(${target_name} ${%%{conf_project_name}_CXX})
+
+# for a library:
+sf_create_library(${target_name} SOURCE_LIST "${source_list}" CXX_VERSION ${%%{conf_project_name}_CXX})
+

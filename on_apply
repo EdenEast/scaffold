@@ -39,3 +39,10 @@ do
   [ ! -f "$tp_dir.cmake" ] && generate "$tp_dir.cmake" templates/third_party_tramp_CMakeLists.txt.template "${tp_dir#*/}"
 done
 
+# generate samples files, only if they don't already exist
+sample_dirlist="$(compgen -A directory "samples/")"
+for sample_dir in $sample_dirlist
+do
+  [ ! -f "$sample_dir/CMakeLists.txt" ] && generate "$sample_dir/CMakeLists.txt" templates/sample_exec_CMakeLists.txt.template "${sample_dir#*/}"
+done
+

@@ -1,0 +1,15 @@
+# prefix: %%
+##
+## CONFIGURATION FOR SAMPLE "%%{1}" OF %%{conf_project_name}
+##
+
+
+set(target_name "%%{1}")
+
+
+# for an executable:
+sf_create_executable(${target_name} EXTENSIONS *.%%{conf_scaffold_header_ext} *.cpp)
+sf_target_cxx(${target_name} ${%%{conf_project_name}_CXX})
+
+# for a library:
+#sf_create_library(${target_name} EXTENSIONS "*.cpp" CXX_VERSION ${%%{conf_project_name}_CXX})

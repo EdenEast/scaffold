@@ -1,5 +1,10 @@
 # prefix: %%
 ##
-## CONFIGURATION FOR %%{conf_project_name}
+## USER CONFIGURATION FOR %%{conf_project_name}
 ##
 
+
+# Some predef values that you can change without requiring to run 'prig apply':
+
+# The C++ version to use
+set("%%{conf_project_name}_CXX" 17)
