@@ -28,8 +28,11 @@ if(NOT CPPCHECK_EXECUTABLE)
   endif()
 endif()
 
-macro(sf_cppcheck_add_target)
-  foreach(target ${ARGN})
+macro(sf_cppcheck_add_target target)
+  if(CPPCHECK_EXECUTABLE)
+    set(multi_args EXCLUDE_REGEX_LIST)
+    cmake_parse_arguments(THIS "${flag_args}" "${single_args}" "${multi_args}" ${ARGN})
+
     get_target_property(target_type ${target} TYPE)
     if(${target_type} STREQUAL "INTERFACE_LIBRARY")
       get_target_property(target_source_list ${target} INTERFACE_SOURCES)
@@ -41,8 +44,24 @@ macro(sf_cppcheck_add_target)
       message(FATAL_ERROR "Cound not find target ${target}'s list of sources")
     endif()
 
+    if(THIS_EXCLUDE_REGEX_LIST)
+      set(exclude_file_list "")
+      foreach(exclude_regex ${THIS_EXCLUDE_REGEX_LIST})
+        foreach(f ${target_source_list})
+          if(${f} MATCHES ${exclude_regex})
+            list(APPEND exclude_file_list ${f})
+          endif()
+        endforeach()
+      endforeach()
+
+      foreach(f ${exclude_file_list})
+        message("removing ${f} from source list")
+        list(REMOVE_ITEM target_source_list ${f})
+      endforeach()
+    endif()
+
     list(APPEND SF_CPPCHECK_SOURCE_LIST ${target_source_list})
-  endforeach()
+  endif()
 endmacro()
 
 function(sf_cppcheck_create_command)
@@ -51,11 +70,10 @@ function(sf_cppcheck_create_command)
   list(APPEND CPPCHECK_ARGS
     --enable=warning,style,performance,portability,unusedFunction
     --std=c++14
-    --verbose
     --error-exitcode=1
     --language=c++
     -DMAIN=main
-    -I ${SF_CPPCHECK_SOURCE_LIST}
+    ${SF_CPPCHECK_SOURCE_LIST}
   )
 
   if(CPPCHECK_EXECUTABLE)
