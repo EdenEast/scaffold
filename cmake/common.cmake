@@ -78,3 +78,8 @@ function(sf_check_master_project is_project)
     set(${is_project} OFF PARENT_SCOPE)
   endif()
 endfunction(sf_check_master_project)
+
+macro(sf_setup_modules)
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
+endmacro()
+
