@@ -9,22 +9,32 @@ include(CMakeParseArguments)
 
 find_program(CPPCHECK_EXECUTABLE cppcheck)
 if(NOT CPPCHECK_EXECUTABLE)
-  sf_add_external_git_repo(
-    URL https://github.com/cruizemissile/cppcheck
-    TAG master
-    PREFIX "external/cppcheck"
-    OPTIONAL
-  )
+  if(NOT MSVC)
+    sf_add_external_git_repo(
+      URL https://github.com/cruizemissile/cppcheck
+      TAG master
+      PREFIX "external/cppcheck"
+      OPTIONAL
+    )
 
-  if(CPPCHECK_TARGET)
-    if(NOT WIN32)
-      set(CPPCHECK_EXECUTABLE ${CMAKE_BINARY_DIR}/bin/cppcheck)
+    if(CPPCHECK_TARGET)
+      if(NOT WIN32)
+        set(CPPCHECK_EXECUTABLE ${CMAKE_BINARY_DIR}/bin/cppcheck)
+      else()
+        set(CPPCHECK_EXECUTABLE ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}/cppcheck.exe)
+      endif()
+      sf_target_set_folder(${CPPCHECK_TARGET} "tools/analysis/cppcheck")
     else()
-      set(CPPCHECK_EXECUTABLE ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}/cppcheck.exe)
+      message(FATAL_ERROR "cppcheck failed to be cloned")
     endif()
-    sf_target_set_folder(${CPPCHECK_TARGET} "tools/analysis/cppcheck")
   else()
-    message(FATAL_ERROR "cppcheck failed to be cloned")
+    message(STATUS "")
+    message(STATUS "------------------------------------------------------------------")
+    message(STATUS "| cppcheck could not be found in path. Install cppcheck visit    |")
+    message(STATUS "| http://cppcheck.sourceforge.net and install cppcheck for your  |")
+    message(STATUS "| platform. Make sure that cppcheck is added to your PATH.       |")
+    message(STATUS "------------------------------------------------------------------")
+    message(STATUS "")
   endif()
 endif()
 
@@ -55,7 +65,6 @@ macro(sf_cppcheck_add_target target)
       endforeach()
 
       foreach(f ${exclude_file_list})
-        message("removing ${f} from source list")
         list(REMOVE_ITEM target_source_list ${f})
       endforeach()
     endif()
