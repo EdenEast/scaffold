@@ -80,6 +80,7 @@ function(sf_check_master_project is_project)
 endfunction(sf_check_master_project)
 
 macro(sf_setup_modules)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
   set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 endmacro()
 
