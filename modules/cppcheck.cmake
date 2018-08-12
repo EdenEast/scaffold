@@ -64,24 +64,35 @@ macro(sf_cppcheck_add_target target)
         endforeach()
       endforeach()
 
+      set(final_exclude_list "")
       foreach(f ${exclude_file_list})
         list(REMOVE_ITEM target_source_list ${f})
+        list(APPEND final_exclude_list -i${f})
       endforeach()
     endif()
 
     list(APPEND SF_CPPCHECK_SOURCE_LIST ${target_source_list})
+    list(APPEND SF_CPPCHECK_EXCLUDE_SOURCE_LIST ${final_exclude_list})
   endif()
 endmacro()
 
 function(sf_cppcheck_create_command)
+  set(single_args CHECKS)
   cmake_parse_arguments(THIS "${flag_args}" "${single_args}" "${multi_args}" ${ARGN})
 
+  if(THIS_CHECKS)
+    set(check_args ${THIS_CHECKS})
+  else()
+    set(check_args warning,style,performance,portability,unusedFunction)
+  endif()
+
   list(APPEND CPPCHECK_ARGS
-    --enable=warning,style,performance,portability,unusedFunction
+    --enable=${check_args}
     --std=c++14
     --error-exitcode=1
     --language=c++
     -DMAIN=main
+    ${SF_CPPCHECK_EXCLUDE_SOURCE_LIST}
     ${SF_CPPCHECK_SOURCE_LIST}
   )
 
