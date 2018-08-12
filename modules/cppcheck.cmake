@@ -77,6 +77,7 @@ macro(sf_cppcheck_add_target target)
 endmacro()
 
 function(sf_cppcheck_create_command)
+  set(flag_args FORCE)
   set(single_args CHECKS)
   cmake_parse_arguments(THIS "${flag_args}" "${single_args}" "${multi_args}" ${ARGN})
 
@@ -86,12 +87,17 @@ function(sf_cppcheck_create_command)
     set(check_args warning,style,performance,portability,unusedFunction)
   endif()
 
+  if(THIS_FORCE)
+    set(force_arg --force)
+  endif()
+
   list(APPEND CPPCHECK_ARGS
     --enable=${check_args}
     --std=c++14
     --error-exitcode=1
     --language=c++
     -DMAIN=main
+    ${force_arg}
     ${SF_CPPCHECK_EXCLUDE_SOURCE_LIST}
     ${SF_CPPCHECK_SOURCE_LIST}
   )
