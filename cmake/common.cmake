@@ -26,7 +26,7 @@ if (${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${PROJECT_SOURCE_DIR})
 endif()
 
 # If no build type is selected for non multi builds then default the build to debug
-if(NOT CMAKE_BUID_TYPE)
+if(NOT CMAKE_BUILD_TYPE)
   if(SCAF_DEFAULT_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE ${SCAF_DEFAULT_BUILD_TYPE} CACHE STRING "Build type" FORCE)
   else()
